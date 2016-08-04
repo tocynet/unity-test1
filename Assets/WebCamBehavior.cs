@@ -1,13 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WebCamBehavior : MonoBehaviour {
+public class WebCamBehavior : MonoBehaviour
+{
     public int Width = 1920;
     public int Height = 1080;
     public int FPS = 30;
 
-	// Use this for initialization
-	void Start () {
+    public void OnClick()
+    {
+        Debug.Log("Button Clicked!!");
+    }
+
+    // Use this for initialization
+    void Start ()
+    {
         WebCamDevice[] devices = WebCamTexture.devices;
         if (devices.Length > 0)
         {
@@ -21,7 +28,10 @@ public class WebCamBehavior : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 	
 	}
+
+
 }
