@@ -12,6 +12,7 @@ public class GlobalController : MonoBehaviour {
             instance = this;
         }
         DontDestroyOnLoad(this);
+        Debug.Log("GlobalController");
 	}
 	
 	// Update is called once per frame
