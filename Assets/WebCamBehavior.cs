@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Threading;
 
@@ -14,14 +15,18 @@ public class WebCamBehavior : MonoBehaviour
     public int FPS = 30;
     public static bool inited = false;
 
-    public Color32[] color32;
+    public Color32[] color32 = null;
+    public bool isCaptured = false;
     public Texture2D encodedTexture;
 
     public Thread qrThread;
     public Rect screenRect;
     public bool isQuit = false;
 
-    public string lastResult;
+    public BarcodeReader barcodeReader;
+    public string lastResult = null;
+
+    public int score = 0;
 
     void OnEnable()
     {
@@ -69,8 +74,10 @@ public class WebCamBehavior : MonoBehaviour
         WebCamBehavior.inited = false;
         Debug.Log("WebCamBehavior Start()");
 
-        this.qrThread = new Thread(this.decodeQR);
+        this.qrThread = new Thread(this.decodeThreadLoop);
         this.qrThread.Start();
+
+        this.score = 0;
 	}
 	
 	// Update is called once per frame
@@ -96,54 +103,130 @@ public class WebCamBehavior : MonoBehaviour
             WebCamBehavior.inited = true;
         }  else
         {
-            if (this.color32 == null)
+            // MsgText.instance.msg = "prepare capture.";
+            // if (this.color32 == null)
+            if (!this.isCaptured)
             {
+                MsgText.instance.msg = "capturing.";
                 this.color32 = this.webcamTexture.GetPixels32();
                 var tmp_msg = "Camera Captured...";
-                Debug.Log(tmp_msg);
+                // Debug.Log(tmp_msg);
                 MsgText.instance.msg = tmp_msg;
+                this.resetResult();
+                this.isCaptured = true;
             }
         }
      
     }
 
 
-    public void OnClick()
+    public void OnClickNext()
     {
-        Debug.Log("Button Clicked!!");
-        MsgText.instance.msg = "Button Clicked!!";
+        Debug.Log("Next Button Clicked!!");
+        // MsgText.instance.msg = "Button Clicked!!";
+        if (this.lastResult != null)
+        {
+            if (this.lastResult.Length > 5)
+            {
+                this.lastResult = this.lastResult.Substring(8);
+            }
+        }
+        int tmp;
+        if(Int32.TryParse(this.lastResult, out tmp))
+        {
+            this.score += tmp;
+            ScoreText.instance.score = this.score;
+        }
+        this.resetCapturing();
+        this.resetResult();
     }
 
-    void decodeQR()
+    public void OnClickReset()
     {
-        var barcodeReader = new BarcodeReader { AutoRotate = true };
+        Debug.Log("Reset Button Clicked!!");
+        // MsgText.instance.msg = "Button Clicked!!";
+        this.score = 0;
+        ScoreText.instance.score = 0;
+        this.resetCapturing();
+        this.resetResult();
+    }
 
+    public void resetCapturing()
+    {
+        this.color32 = null;
+        this.isCaptured = false;
+    }
+
+    public void resetResult()
+    {
+        this.lastResult = null;
+    }
+
+    void decodeThreadLoop()
+    {
+        this.barcodeReader = new BarcodeReader {
+            AutoRotate = true,
+            Options = new ZXing.Common.DecodingOptions { TryHarder=false }
+        };
+
+        Debug.Log("barcodeReader inited");
         while (true)
         {
             if (this.isQuit)
                 break;
 
-            try
+            this.decodeBarcode();
+
+            Thread.Sleep(200);
+        }
+    }
+
+    void decodeBarcode()
+    {
+        var tmp_msg = "";
+        var has_error = false;
+
+        try
+        {
+            // decode the current frame
+            if (this.isCaptured && this.lastResult == null)
             {
-                // decode the current frame
-                // if (this.color32 != null)
-                // {
-                    var result = barcodeReader.Decode(this.color32, this.Width, this.Height);
-                    if (result != null)
-                    {
-                        this.lastResult = result.Text;
-                        var tmp_msg = "Decoded: " + result.Text;
-                        Debug.Log(tmp_msg);
-                        MsgText.instance.msg = tmp_msg;
-                    }
-                // }
-                Thread.Sleep(200);
+
+                var result = this.barcodeReader.Decode(this.color32, this.Width, this.Height);
+                if (result != null)
+                {
+                    this.lastResult = result.Text;
+                    var t_msg = "Decoded: " + result.Text;
+                    Debug.Log(t_msg);
+                    MsgText.instance.msg = t_msg;
+                }
+                else
+                {
+                    // Debug.Log("no result");
+                    this.resetCapturing();
+                }
             }
-            catch
+            else
             {
-                // catch error ??
-                MsgText.instance.msg = "not capturing ??";
+                // Debug.Log("not set color32");
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            // catch error ??
+            tmp_msg = "not capturing ??\n" + ex.ToString();
+        }
+        catch (ArgumentNullException ex)
+        {
+            tmp_msg = "not capturing ??\n" + ex.ToString();
+        }
+        finally
+        {
+            if (has_error)
+            {
+                MsgText.instance.msg = tmp_msg;
+            }
+        }
+        // this.resetCapturing();
     }
 }
