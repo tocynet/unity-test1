@@ -69,8 +69,8 @@ public class WebCamBehavior : MonoBehaviour
         WebCamBehavior.inited = false;
         Debug.Log("WebCamBehavior Start()");
 
-        qrThread = new Thread(this.DecodeQR);
-        qrThread.Start();
+        this.qrThread = new Thread(this.decodeQR);
+        this.qrThread.Start();
 	}
 	
 	// Update is called once per frame
@@ -114,9 +114,9 @@ public class WebCamBehavior : MonoBehaviour
         MsgText.instance.msg = "Button Clicked!!";
     }
 
-    void DecodeQR()
+    void decodeQR()
     {
-        var barcodeReader = new BarcodeReader { AutoRotate = false };
+        var barcodeReader = new BarcodeReader { AutoRotate = true };
 
         while (true)
         {
@@ -126,8 +126,8 @@ public class WebCamBehavior : MonoBehaviour
             try
             {
                 // decode the current frame
-                if (this.color32 != null)
-                {
+                // if (this.color32 != null)
+                // {
                     var result = barcodeReader.Decode(this.color32, this.Width, this.Height);
                     if (result != null)
                     {
@@ -136,12 +136,13 @@ public class WebCamBehavior : MonoBehaviour
                         Debug.Log(tmp_msg);
                         MsgText.instance.msg = tmp_msg;
                     }
-                }
+                // }
                 Thread.Sleep(200);
             }
             catch
             {
                 // catch error ??
+                MsgText.instance.msg = "not capturing ??";
             }
         }
     }
