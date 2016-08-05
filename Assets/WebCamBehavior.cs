@@ -19,7 +19,7 @@ public class WebCamBehavior : MonoBehaviour
 
     public Thread qrThread;
     public Rect screenRect;
-    public bool isQuit;
+    public bool isQuit = false;
 
     public string lastResult;
 
