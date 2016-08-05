@@ -99,6 +99,9 @@ public class WebCamBehavior : MonoBehaviour
             if (this.color32 == null)
             {
                 this.color32 = this.webcamTexture.GetPixels32();
+                var tmp_msg = "Camera Captured...";
+                Debug.Log(tmp_msg);
+                MsgText.instance.msg = tmp_msg;
             }
         }
      
@@ -123,15 +126,17 @@ public class WebCamBehavior : MonoBehaviour
             try
             {
                 // decode the current frame
-                var result = barcodeReader.Decode(this.color32, this.Width, this.Height);
-                if (result != null)
+                if (this.color32 != null)
                 {
-                    this.lastResult = result.Text;
-                    var tmp_msg = "Decoded: " + result.Text;
-                    Debug.Log(tmp_msg);
-                    MsgText.instance.msg = tmp_msg;
+                    var result = barcodeReader.Decode(this.color32, this.Width, this.Height);
+                    if (result != null)
+                    {
+                        this.lastResult = result.Text;
+                        var tmp_msg = "Decoded: " + result.Text;
+                        Debug.Log(tmp_msg);
+                        MsgText.instance.msg = tmp_msg;
+                    }
                 }
-
                 Thread.Sleep(200);
             }
             catch
