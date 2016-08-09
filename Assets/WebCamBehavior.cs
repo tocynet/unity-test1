@@ -97,6 +97,7 @@ public class WebCamBehavior : MonoBehaviour
                 this.Height = this.webcamTexture.height;
                 MsgText.instance.msg = "カメラ・キャプチャ中";
                 // this.baseRotation = this.transform.rotation;
+                GetComponent<Renderer>().transform.Rotate(new Vector3(0,0,1), 90.0f);
             }
             else
             {
