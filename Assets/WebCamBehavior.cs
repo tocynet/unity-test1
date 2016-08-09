@@ -96,7 +96,7 @@ public class WebCamBehavior : MonoBehaviour
                 this.Width = this.webcamTexture.width;
                 this.Height = this.webcamTexture.height;
                 MsgText.instance.msg = "カメラ・キャプチャ中";
-                this.baseRotation = this.transform.rotation;
+                // this.baseRotation = this.transform.rotation;
             }
             else
             {
@@ -121,7 +121,7 @@ public class WebCamBehavior : MonoBehaviour
         }
         if (this.webcamTexture != null)
         {
-            this.transform.rotation = this.baseRotation * Quaternion.AngleAxis(this.webcamTexture.videoRotationAngle, Vector3.up);
+            // this.transform.rotation = this.baseRotation * Quaternion.AngleAxis(this.webcamTexture.videoRotationAngle, Vector3.up);
         }     
     }
 
